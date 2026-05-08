@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y \
     libicu-dev \
     libzip-dev
 
-RUN docker-php-ext-install pdo pdo_mysql intl zip
+RUN docker-php-ext-install pdo pdo_pgsql intl zip
 
 RUN docker-php-ext-install intl zip
 
@@ -20,7 +20,7 @@ RUN docker-php-ext-install intl zip
 RUN a2enmod rewrite
 
 # Install PHP extensions
-RUN docker-php-ext-install pdo pdo_mysql
+RUN docker-php-ext-install pdo pdo_pgsql
 
 # Set working directory
 WORKDIR /var/www/html
