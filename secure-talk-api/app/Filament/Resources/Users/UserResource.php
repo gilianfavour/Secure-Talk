@@ -5,14 +5,15 @@ namespace App\Filament\Resources\Users;
 use App\Filament\Resources\Users\Pages\CreateUser;
 use App\Filament\Resources\Users\Pages\EditUser;
 use App\Filament\Resources\Users\Pages\ListUsers;
-use App\Filament\Resources\Users\Schemas\UserForm;
-use App\Filament\Resources\Users\Tables\UsersTable;
 use App\Models\User;
 use BackedEnum;
+use Filament\Forms\Components\Select;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Tables\Columns\TextColumn;
 
 class UserResource extends Resource
 {
@@ -20,18 +21,18 @@ class UserResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $recordTitleAttribute = 'Users';
+    protected static ?string $recordTitleAttribute = 'name';
 
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
             Select::make('role')
-            ->options([
-                'admin' => 'Admin',
-                'counsellor' => 'Counsellor',
-                'user' => 'User',
-            ])
-            ->required(),
+                ->options([
+                    'admin' => 'Admin',
+                    'counsellor' => 'Counsellor',
+                    'user' => 'User',
+                ])
+                ->required(),
         ]);
     }
 
@@ -39,11 +40,11 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')->searchable(),
+                TextColumn::make('name')->searchable(),
 
-                Tables\Columns\TextColumn::make('email'),
+                TextColumn::make('email'),
 
-                Tables\Columns\TextColumn::make('role')
+                TextColumn::make('role')
                     ->badge()
                     ->color(fn ($state) =>
                         match ($state) {
@@ -52,7 +53,8 @@ class UserResource extends Resource
                             default => 'gray',
                         }
                     ),
-                Tables\Columns\TextColumn::make('assigned_posts_count')
+
+                TextColumn::make('assigned_posts_count')
                     ->counts('assignedPosts')
                     ->label('Assigned Posts'),
             ]);
@@ -60,9 +62,7 @@ class UserResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 
     public static function getPages(): array
