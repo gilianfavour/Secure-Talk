@@ -1,4 +1,4 @@
-FROM php:8.2-apache
+FROM php:8.3-apache
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
@@ -8,7 +8,13 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     git \
-    curl
+    curl \
+    libicu-dev \
+    libzip-dev
+
+RUN docker-php-ext-install pdo pdo_mysql intl zip
+
+RUN docker-php-ext-install intl zip
 
 # Enable Apache mod rewrite
 RUN a2enmod rewrite
