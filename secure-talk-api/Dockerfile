@@ -1,3 +1,5 @@
+CMD php artisan migrate --force && apache2-foreground
+
 FROM php:8.3-apache
 
 # Install dependencies
@@ -38,7 +40,6 @@ RUN chown -R www-data:www-data /var/www/html
 
 EXPOSE 80
 
-CMD ["apache2-foreground"]
 
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 
