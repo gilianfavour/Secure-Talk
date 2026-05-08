@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y \
     libpq-dev
 
 # Install PHP extensions
-RUN docker-php-ext-install pdo pdo_pgsql intl zip
+RUN docker-php-ext-install pdo pdo_pgsql pgsql intl zip
 
 # Enable Apache rewrite
 RUN a2enmod rewrite
