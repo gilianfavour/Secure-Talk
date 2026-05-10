@@ -13,6 +13,13 @@ export type Reply = {
   content: string;
   responder_type: "user" | "counsellor";
   created_at: string;
+
+  likes?: number;
+  dislikes?: number;
+
+  user_reaction?: 'like' | 'dislike' | null;
+
+  can_edit?: boolean;
 };
 
 // ✅ ADD THIS
