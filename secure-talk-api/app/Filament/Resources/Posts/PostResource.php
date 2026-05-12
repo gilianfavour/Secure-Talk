@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\Resources\Posts;
 
 use App\Models\Post;
 use UnitEnum;
@@ -26,7 +26,7 @@ class PostResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::ChatBubbleLeftRight;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Content';
+    protected static ?string $navigationGroup = 'Content';
 
     protected static ?string $recordTitleAttribute = 'content';
 
