@@ -173,6 +173,10 @@ class PostResource extends Resource
 
         $user = auth()->user();
 
+        if (! $user) {
+            return $query; // or abort(403)
+        }
+
         if ($user->role === 'counsellor') {
             return $query->where('counsellor_id', $user->id);
         }
