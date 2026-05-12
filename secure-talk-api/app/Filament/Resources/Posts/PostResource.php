@@ -5,21 +5,17 @@ namespace App\Filament\Resources\Posts;
 use App\Models\Post;
 use App\Models\User;
 use BackedEnum;
-use Illuminate\Database\Eloquent\Builder;
-
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DateTimePicker;
-
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-
 use Filament\Support\Icons\Heroicon;
-
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Builder;
 
 use App\Filament\Resources\Posts\Pages\ListPosts;
 use App\Filament\Resources\Posts\Pages\CreatePost;
@@ -36,7 +32,6 @@ class PostResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-
             Textarea::make('content')
                 ->required()
                 ->columnSpanFull(),
@@ -59,15 +54,15 @@ class PostResource extends Resource
 
             Select::make('counsellor_id')
                 ->label('Assigned Counsellor')
-                // ->relationship(
-                //     name: 'counsellor',
-                //     titleAttribute: 'name'
-                // )
+                ->relationship(
+                    name: 'counsellor',
+                    titleAttribute: 'name'
+                )
+                ->disabled(fn () => auth()->user()?->role === 'counsellor')
                 ->options(
                     User::where('role', 'counsellor')
                         ->pluck('name', 'id')
                 )
-                ->disabled(fn () => auth()->check() && auth()->user()->role === 'counsellor')
                 ->searchable()
                 ->preload(),
 
@@ -88,8 +83,8 @@ class PostResource extends Resource
     {
         return $table
             ->columns([
-
                 TextColumn::make('id')
+                    ->disabled(fn () => auth()->user()?->role === 'counsellor')
                     ->sortable(),
 
                 TextColumn::make('content')
@@ -99,9 +94,7 @@ class PostResource extends Resource
                 TextColumn::make('type')
                     ->badge()
                     ->color(fn ($state) =>
-                        $state === 'private'
-                            ? 'danger'
-                            : 'success'
+                        $state === 'private' ? 'danger' : 'success'
                     ),
 
                 TextColumn::make('status')
@@ -135,10 +128,8 @@ class PostResource extends Resource
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable(),
-
             ])
             ->filters([
-
                 Tables\Filters\SelectFilter::make('type')
                     ->options([
                         'public' => 'Public',
@@ -149,18 +140,14 @@ class PostResource extends Resource
                     ->query(fn ($query) =>
                         $query->where('expires_at', '>', now())
                     ),
-
             ])
-            ->actions([
 
+            ->actions([
                 Tables\Actions\EditAction::make(),
 
                 Tables\Actions\Action::make('assign')
                     ->label('Assign')
                     ->icon('heroicon-o-user-plus')
-                    ->visible(fn () =>
-                        auth()->check() && auth()->user()->role === 'admin'
-                    )
                     ->form([
                         Select::make('counsellor_id')
                             ->label('Counsellor')
@@ -176,10 +163,11 @@ class PostResource extends Resource
                             'status' => 'assigned',
                         ]);
                     }),
-
             ])
-            ->defaultSort('created_at', 'desc');
+        ->defaultSort('created_at', 'desc');
     }
+
+    
 
     public static function getRelations(): array
     {
@@ -192,7 +180,7 @@ class PostResource extends Resource
 
         $user = auth()->user();
 
-        if ($user instanceof \App\Models\User && $user->role === 'counsellor') {
+        if ($user->role === 'counsellor') {
             return $query->where('counsellor_id', $user->id);
         }
 
