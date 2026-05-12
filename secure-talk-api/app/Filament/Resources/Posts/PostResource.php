@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Posts;
 
 use App\Models\Post;
-use UnitEnum;
 use BackedEnum;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Select;
@@ -16,17 +15,15 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 
-use App\Filament\Resources\Posts\PostResource\Pages\ListPosts;
-use App\Filament\Resources\Posts\PostResource\Pages\CreatePost;
-use App\Filament\Resources\Posts\PostResource\Pages\EditPost;
+use App\Filament\Resources\Posts\Pages\ListPosts;
+use App\Filament\Resources\Posts\Pages\CreatePost;
+use App\Filament\Resources\Posts\Pages\EditPost;
 
 class PostResource extends Resource
 {
     protected static ?string $model = Post::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::ChatBubbleLeftRight;
-
-    protected static ?string $navigationGroup = 'Content';
 
     protected static ?string $recordTitleAttribute = 'content';
 
@@ -61,7 +58,8 @@ class PostResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('id')->sortable(),
+                TextColumn::make('id')
+                    ->sortable(),
 
                 TextColumn::make('content')
                     ->limit(40)
