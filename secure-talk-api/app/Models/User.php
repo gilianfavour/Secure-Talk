@@ -13,6 +13,9 @@ class User extends Authenticatable implements FilamentUser
 {
     use HasFactory, Notifiable;
 
+    /**
+     * Mass assignable fields
+     */
     protected $fillable = [
         'name',
         'email',
@@ -20,11 +23,17 @@ class User extends Authenticatable implements FilamentUser
         'role',
     ];
 
+    /**
+     * Hidden fields
+     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
+    /**
+     * Attribute casting
+     */
     protected function casts(): array
     {
         return [
@@ -33,17 +42,36 @@ class User extends Authenticatable implements FilamentUser
         ];
     }
 
-    // 🔐 IMPORTANT: Filament access rule
+    /**
+     * Filament dashboard access
+     */
     public function canAccessPanel(Panel $panel): bool
     {
-        return true; // allow all users for now (admin panel)
+        return in_array($this->role, [
+            'admin',
+            'counsellor',
+        ]);
     }
 
-    public function isCounsellor()
+    /**
+     * Check if user is admin
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    /**
+     * Check if user is counsellor
+     */
+    public function isCounsellor(): bool
     {
         return $this->role === 'counsellor';
     }
 
+    /**
+     * Counsellor assigned posts
+     */
     public function assignedPosts()
     {
         return $this->hasMany(Post::class, 'counsellor_id');

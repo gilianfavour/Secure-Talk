@@ -26,11 +26,23 @@ class UserResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
+            \Filament\Forms\Components\TextInput::make('name')
+                ->required(),
+
+            \Filament\Forms\Components\TextInput::make('email')
+                ->email()
+                ->required()
+                ->unique(ignoreRecord: true),
+
+            \Filament\Forms\Components\TextInput::make('password')
+                ->password()
+                ->required(fn (string $operation): bool => $operation === 'create')
+                ->dehydrated(fn ($state) => filled($state)),
+
             Select::make('role')
                 ->options([
                     'admin' => 'Admin',
                     'counsellor' => 'Counsellor',
-                    'user' => 'User',
                 ])
                 ->required(),
         ]);
@@ -40,9 +52,11 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name')->searchable(),
+                TextColumn::make('name')
+                    ->searchable(),
 
-                TextColumn::make('email'),
+                TextColumn::make('email')
+                    ->searchable(),
 
                 TextColumn::make('role')
                     ->badge()
@@ -57,9 +71,13 @@ class UserResource extends Resource
                 TextColumn::make('assigned_posts_count')
                     ->counts('assignedPosts')
                     ->label('Assigned Posts'),
-            ]);
-    }
 
+                TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable(),
+            ])
+            ->defaultSort('created_at', 'desc');
+    }
     public static function getRelations(): array
     {
         return [];
