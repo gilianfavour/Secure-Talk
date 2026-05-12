@@ -13,6 +13,8 @@ class Post extends Model
         'category',
         'reply_code',
         'expires_at',
+        'counsellor_id',
+        'status',
     ];
 
     protected $casts = [

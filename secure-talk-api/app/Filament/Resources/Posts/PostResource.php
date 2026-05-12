@@ -3,14 +3,20 @@
 namespace App\Filament\Resources\Posts;
 
 use App\Models\Post;
+use App\Models\User;
 use BackedEnum;
+use Illuminate\Database\Eloquent\Builder;
+
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DateTimePicker;
+
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+
 use Filament\Support\Icons\Heroicon;
+
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
@@ -30,6 +36,7 @@ class PostResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
+
             Textarea::make('content')
                 ->required()
                 ->columnSpanFull(),
@@ -40,6 +47,29 @@ class PostResource extends Resource
                     'private' => 'Private',
                 ])
                 ->required(),
+
+            Select::make('status')
+                ->options([
+                    'pending' => 'Pending',
+                    'assigned' => 'Assigned',
+                    'closed' => 'Closed',
+                ])
+                ->default('pending')
+                ->required(),
+
+            Select::make('counsellor_id')
+                ->label('Assigned Counsellor')
+                ->relationship(
+                    name: 'counsellor',
+                    titleAttribute: 'name'
+                )
+                ->options(
+                    User::where('role', 'counsellor')
+                        ->pluck('name', 'id')
+                )
+                ->disabled(fn () => auth()->user()?->role === 'counsellor')
+                ->searchable()
+                ->preload(),
 
             TextInput::make('category'),
 
@@ -58,6 +88,7 @@ class PostResource extends Resource
     {
         return $table
             ->columns([
+
                 TextColumn::make('id')
                     ->sortable(),
 
@@ -68,8 +99,23 @@ class PostResource extends Resource
                 TextColumn::make('type')
                     ->badge()
                     ->color(fn ($state) =>
-                        $state === 'private' ? 'danger' : 'success'
+                        $state === 'private'
+                            ? 'danger'
+                            : 'success'
                     ),
+
+                TextColumn::make('status')
+                    ->badge()
+                    ->color(fn ($state) => match ($state) {
+                        'pending' => 'warning',
+                        'assigned' => 'success',
+                        'closed' => 'danger',
+                        default => 'gray',
+                    }),
+
+                TextColumn::make('counsellor.name')
+                    ->label('Counsellor')
+                    ->default('Unassigned'),
 
                 TextColumn::make('category'),
 
@@ -89,8 +135,10 @@ class PostResource extends Resource
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable(),
+
             ])
             ->filters([
+
                 Tables\Filters\SelectFilter::make('type')
                     ->options([
                         'public' => 'Public',
@@ -101,6 +149,34 @@ class PostResource extends Resource
                     ->query(fn ($query) =>
                         $query->where('expires_at', '>', now())
                     ),
+
+            ])
+            ->actions([
+
+                Tables\Actions\EditAction::make(),
+
+                Tables\Actions\Action::make('assign')
+                    ->label('Assign')
+                    ->icon('heroicon-o-user-plus')
+                    ->visible(fn () =>
+                        auth()->user()?->role === 'admin'
+                    )
+                    ->form([
+                        Select::make('counsellor_id')
+                            ->label('Counsellor')
+                            ->options(
+                                User::where('role', 'counsellor')
+                                    ->pluck('name', 'id')
+                            )
+                            ->required(),
+                    ])
+                    ->action(function ($record, array $data) {
+                        $record->update([
+                            'counsellor_id' => $data['counsellor_id'],
+                            'status' => 'assigned',
+                        ]);
+                    }),
+
             ])
             ->defaultSort('created_at', 'desc');
     }
@@ -108,6 +184,19 @@ class PostResource extends Resource
     public static function getRelations(): array
     {
         return [];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+
+        $user = auth()->user();
+
+        if ($user && $user->role === 'counsellor') {
+            return $query->where('counsellor_id', $user->id);
+        }
+
+        return $query;
     }
 
     public static function getPages(): array
