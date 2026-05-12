@@ -16,9 +16,9 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 
-use App\Filament\Resources\PostResource\Pages\ListPosts;
-use App\Filament\Resources\PostResource\Pages\CreatePost;
-use App\Filament\Resources\PostResource\Pages\EditPost;
+use App\Filament\Resources\Posts\PostResource\Pages\ListPosts;
+use App\Filament\Resources\Posts\PostResource\Pages\CreatePost;
+use App\Filament\Resources\Posts\PostResource\Pages\EditPost;
 
 class PostResource extends Resource
 {
