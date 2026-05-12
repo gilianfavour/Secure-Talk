@@ -27,7 +27,8 @@ class UserResource extends Resource
     {
         return $schema->components([
             \Filament\Forms\Components\TextInput::make('name')
-                ->required(),
+                ->required()
+                ->maxLength(255),
 
             \Filament\Forms\Components\TextInput::make('email')
                 ->email()
@@ -37,14 +38,16 @@ class UserResource extends Resource
             \Filament\Forms\Components\TextInput::make('password')
                 ->password()
                 ->required(fn (string $operation): bool => $operation === 'create')
-                ->dehydrated(fn ($state) => filled($state)),
+                ->dehydrated(fn ($state) => filled($state))
+                ->label('Password'),
 
             Select::make('role')
                 ->options([
                     'admin' => 'Admin',
                     'counsellor' => 'Counsellor',
                 ])
-                ->required(),
+                ->required()
+                ->default('counsellor'),
         ]);
     }
 
@@ -52,6 +55,9 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('id')
+                    ->sortable(),
+
                 TextColumn::make('name')
                     ->searchable(),
 
@@ -78,6 +84,7 @@ class UserResource extends Resource
             ])
             ->defaultSort('created_at', 'desc');
     }
+    
     public static function getRelations(): array
     {
         return [];
