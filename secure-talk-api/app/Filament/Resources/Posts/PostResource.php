@@ -4,14 +4,12 @@ namespace App\Filament\Resources\Posts;
 
 use App\Models\Post;
 use App\Models\User;
-use BackedEnum;
+use Filament\Forms\Form;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Resources\Resource;
-use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
@@ -25,13 +23,13 @@ class PostResource extends Resource
 {
     protected static ?string $model = Post::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::ChatBubbleLeftRight;
+    protected static ?string $navigationIcon = 'heroicon-o-chat-bubble-left-right';
 
     protected static ?string $recordTitleAttribute = 'content';
 
-    public static function form(Schema $schema): Schema
+    public static function form(Form $form): Form
     {
-        return $schema->components([
+        return $form->schema([
             Textarea::make('content')
                 ->required()
                 ->columnSpanFull(),
@@ -52,14 +50,14 @@ class PostResource extends Resource
                 ->default('pending')
                 ->required(),
 
-             Select::make('counsellor_id')
+            Select::make('counsellor_id')
                 ->label('Assigned Counsellor')
                 ->relationship('counsellor', 'name')
                 ->searchable()
                 ->preload()
                 ->disabled(fn () =>
-                    auth()->check() && auth()->user()->role === 'counsellor'
-            ),
+                    auth()->user()?->role === 'counsellor'
+                ),
 
             TextInput::make('category'),
 
@@ -78,8 +76,7 @@ class PostResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('id')
-                    ->sortable(),
+                TextColumn::make('id')->sortable(),
 
                 TextColumn::make('content')
                     ->limit(40)
@@ -120,7 +117,6 @@ class PostResource extends Resource
 
                 TextColumn::make('created_at')
                     ->dateTime(),
-                    // ->sortable(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('type')
@@ -134,7 +130,6 @@ class PostResource extends Resource
                         $query->where('expires_at', '>', now())
                     ),
             ])
-
             ->actions([
                 Tables\Actions\EditAction::make(),
 
@@ -157,10 +152,8 @@ class PostResource extends Resource
                         ]);
                     }),
             ])
-        ->defaultSort('created_at', 'desc');
+            ->defaultSort('created_at', 'desc');
     }
-
-    
 
     public static function getRelations(): array
     {
@@ -174,7 +167,7 @@ class PostResource extends Resource
         $user = auth()->user();
 
         if (! $user) {
-            return $query; // or abort(403)
+            return $query;
         }
 
         if ($user->role === 'counsellor') {
