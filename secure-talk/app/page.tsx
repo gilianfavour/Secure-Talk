@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import WellnessFeed from "./components/home/WellnessFeed";
 
 /* ── Whisper card data ── */
 const whispers = [
@@ -244,6 +245,11 @@ export default function HomePage() {
             <TrustBadge icon={<LockIcon />}   label="Data not stored" />
           </div>
         </section>
+
+        {/*======================== 
+        Wellness Feed 
+        ============================*/}
+        <WellnessFeed/>
 
         {/* ══════════════════════════════════════
             HOW IT WORKS SECTION

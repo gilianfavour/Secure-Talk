@@ -3,6 +3,7 @@ import {
   PostWithReplies,
   CreatePostPayload,
   CreateReplyPayload,
+  WellnessPost,
 } from "./types";
 import { getSessionId } from './session'
 
@@ -62,6 +63,24 @@ export const api = {
     if (!res.ok) {
       return null
     }
+
+    return res.json()
+  },
+
+    getWellnessPosts: async (): Promise<WellnessPost[]> => {
+    const res = await fetch(`${BASE_URL}/wellness-posts`)
+
+    return res.json()
+  },
+
+  createWellnessPost: async (data: Partial<WellnessPost>) => {
+    const res = await fetch(`${BASE_URL}/wellness-posts`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    })
 
     return res.json()
   },

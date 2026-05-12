@@ -38,3 +38,14 @@ export type CreateReplyPayload = {
   post_id: number;
   content: string;
 };
+
+export type WellnessPost = {
+  id: number
+  title: string
+  message: string
+  category?: string
+  background_color?: string
+  image?: string
+  button_text?: string
+  button_link?: string
+}
