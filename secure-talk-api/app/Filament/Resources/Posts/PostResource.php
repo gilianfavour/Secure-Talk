@@ -59,15 +59,15 @@ class PostResource extends Resource
 
             Select::make('counsellor_id')
                 ->label('Assigned Counsellor')
-                ->relationship(
-                    name: 'counsellor',
-                    titleAttribute: 'name'
-                )
+                // ->relationship(
+                //     name: 'counsellor',
+                //     titleAttribute: 'name'
+                // )
                 ->options(
                     User::where('role', 'counsellor')
                         ->pluck('name', 'id')
                 )
-                ->disabled(fn () => auth()->user()?->role === 'counsellor')
+                ->disabled(fn () => auth()->check() && auth()->user()->role === 'counsellor')
                 ->searchable()
                 ->preload(),
 
@@ -159,7 +159,7 @@ class PostResource extends Resource
                     ->label('Assign')
                     ->icon('heroicon-o-user-plus')
                     ->visible(fn () =>
-                        auth()->user()?->role === 'admin'
+                        auth()->check() && auth()->user()->role === 'admin'
                     )
                     ->form([
                         Select::make('counsellor_id')
@@ -192,7 +192,7 @@ class PostResource extends Resource
 
         $user = auth()->user();
 
-        if ($user && $user->role === 'counsellor') {
+        if ($user instanceof \App\Models\User && $user->role === 'counsellor') {
             return $query->where('counsellor_id', $user->id);
         }
 
