@@ -275,8 +275,8 @@ export default function HomePage() {
             </p>
 
             <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+              // display: 'grid',
+              // gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
               gap: 14, marginBottom: 32,
             }}>
               <StepCard
