@@ -52,19 +52,14 @@ class PostResource extends Resource
                 ->default('pending')
                 ->required(),
 
-            Select::make('counsellor_id')
+             Select::make('counsellor_id')
                 ->label('Assigned Counsellor')
-                ->relationship(
-                    name: 'counsellor',
-                    titleAttribute: 'name'
-                )
-                ->disabled(fn () => auth()->user()?->role === 'counsellor')
-                ->options(
-                    User::where('role', 'counsellor')
-                        ->pluck('name', 'id')
-                )
+                ->relationship('counsellor', 'name')
                 ->searchable()
-                ->preload(),
+                ->preload()
+                ->disabled(fn () =>
+                    auth()->check() && auth()->user()->role === 'counsellor'
+            ),
 
             TextInput::make('category'),
 
@@ -84,7 +79,6 @@ class PostResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('id')
-                    ->disabled(fn () => auth()->user()?->role === 'counsellor')
                     ->sortable(),
 
                 TextColumn::make('content')
@@ -122,12 +116,11 @@ class PostResource extends Resource
                     ->label('Replies'),
 
                 TextColumn::make('expires_at')
-                    ->dateTime()
-                    ->sortable(),
+                    ->dateTime(),
 
                 TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable(),
+                    ->dateTime(),
+                    // ->sortable(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('type')
